@@ -16,7 +16,7 @@ export default function Owners({ contractName, ownerEvents, signaturesRequired, 
   const [to, setTo] = useLocalStorage("to");
   const [amount, setAmount] = useLocalStorage("amount", "0");
   const [methodName, setMethodName] = useLocalStorage("addSigner");
-  const [newOwner, setNewOwner] = useLocalStorage("newOwner");
+  const [owner, setOwner] = useLocalStorage("owner");
   const [newRole, setNewRole] = useLocalStorage("DEFAULT_ROLE");
   const [newSignaturesRequired, setNewSignaturesRequired] = useLocalStorage("newSignaturesRequired");
   const [data, setData] = useLocalStorage("data", "0x");
@@ -56,17 +56,21 @@ export default function Owners({ contractName, ownerEvents, signaturesRequired, 
           <AddressInput
             autoFocus
             ensProvider={mainnetProvider}
-            placeholder="new owner address"
-            value={newOwner}
-            onChange={setNewOwner}
+            placeholder="owner address"
+            value={owner}
+            onChange={setOwner}
           />
         </div>
-        <div style={{ margin: 8, padding: 8 }}>
-          <Select value={newRole} style={{ width: "100%" }} onChange={setNewRole}>
-            <Option key="OG_ROLE">OG</Option>
-            <Option key="DEFAULT_ROLE">DEFAULT</Option>
-          </Select>
-        </div>
+        {methodName == "addSigner" ?
+          <div style={{ margin: 8, padding: 8 }}>
+            <Select value={newRole} style={{ width: "100%" }} onChange={setNewRole}>
+              <Option key="OG_ROLE">OG</Option>
+              <Option key="DEFAULT_ROLE">DEFAULT</Option>
+            </Select>
+          </div>
+          :
+          null
+        }
         <div style={{ margin: 8, padding: 8 }}>
           <Input
             ensProvider={mainnetProvider}
@@ -78,7 +82,12 @@ export default function Owners({ contractName, ownerEvents, signaturesRequired, 
         <div style={{ margin: 8, padding: 8 }}>
           <Button onClick={() => {
             console.log("METHOD", setMethodName)
-            let calldata = readContracts[contractName].interface.encodeFunctionData(methodName, [newOwner, newRole, newSignaturesRequired])
+            let calldata = "";
+            if (methodName == "addSigner") {
+              calldata = readContracts[contractName].interface.encodeFunctionData(methodName, [owner, newRole, newSignaturesRequired]);
+            } else {
+              calldata = readContracts[contractName].interface.encodeFunctionData(methodName, [owner, newSignaturesRequired]);
+            }
             console.log("calldata", calldata)
             setData(calldata)
             setAmount("0")

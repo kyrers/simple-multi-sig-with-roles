@@ -26,6 +26,7 @@ contract MetaMultiSigWallet is AccessControl {
     event Owner( address indexed owner, bool added);
     event TransferFunds(address indexed receiver, uint256 value);
     mapping(address => bool) public isOwner;
+    mapping(address => string) public userRole;
     uint public signaturesRequired;
     uint public nonce;
     uint public chainId;
@@ -44,6 +45,7 @@ contract MetaMultiSigWallet is AccessControl {
 
             //Grant every initial owner the OG_ROLE.
             _setupRole(OG_ROLE, owner);
+            userRole[owner] = "OG_ROLE";
 
             isOwner[owner] = true;
             emit Owner(owner,isOwner[owner]);
@@ -72,6 +74,7 @@ contract MetaMultiSigWallet is AccessControl {
         
         //Grant role to the new signer
         grantRole(keccak256(abi.encode(role)),newSigner);
+        userRole[newSigner] = role;
 
         isOwner[newSigner] = true;
         signaturesRequired = newSignaturesRequired;
@@ -82,6 +85,12 @@ contract MetaMultiSigWallet is AccessControl {
     function removeSigner(address oldSigner, uint256 newSignaturesRequired) public onlySelf {
         require(isOwner[oldSigner], "removeSigner: not owner");
         require(newSignaturesRequired>0,"removeSigner: must be non-zero sigs required");
+        
+        //Revoke role
+        bytes32 role = keccak256(abi.encode(userRole[oldSigner]));
+        revokeRole(role, oldSigner);
+        userRole[oldSigner] = "";
+
         isOwner[oldSigner] = false;
         signaturesRequired = newSignaturesRequired;
         emit Owner(oldSigner,isOwner[oldSigner]);
@@ -120,16 +129,19 @@ contract MetaMultiSigWallet is AccessControl {
             if(isOwner[recovered]){
               validSignatures++;
             }
+
+            //Check if signer is OG
             if(hasRole(OG_ROLE, recovered)) {
                 OGsCount++;
             }
         }
 
         require(validSignatures>=signaturesRequired, "executeTransaction: not enough valid signatures");
-        require(OGsCount > 0, "None of the signers is an OG!");
+        require(OGsCount > 0, "None of the signers is an OG!"); //At least one OG signer is needed
         
         (bool success, bytes memory result) = to.call{value: value}(data);
-        require(success, "Transaction Failed. Note that at least one of the transaction signers must be an OG. Also, if applicable, the role must be valid.");
+        require(success, 
+        "Transaction Failed. Note that: At least one of the transaction signers must be an OG; If applicable, the role must be valid; No repeated signers.");
 
         emit ExecuteTransaction(msg.sender, to, value, data, nonce-1, _hash, result);
         return result;

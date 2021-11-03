@@ -119,6 +119,10 @@ function App(props) {
   const isOwner = useContractReader(readContracts, contractName, "isOwner", [address])
   if (DEBUG) console.log("🤗 isOwner (" + address + "):", isOwner)
 
+  //Get user role
+  const userRole = useContractReader(readContracts, contractName, "userRole", [address])
+  if (DEBUG) console.log("🤗 User (" + address + ") Role:", userRole)
+
   // keep track of a variable from the contract in the local React state:
   const nonce = useContractReader(readContracts, contractName, "nonce")
   if (DEBUG) console.log("# nonce:", nonce)
@@ -130,6 +134,9 @@ function App(props) {
   //Listen for role related events
   const roleGrantedEvents = useEventListener(readContracts, contractName, "RoleGranted", localProvider, 1);
   if (DEBUG) console.log("roleGrantedEvents:", roleGrantedEvents)
+
+  const roleRevokedEvents = useEventListener(readContracts, contractName, "RoleRevoked", localProvider, 1);
+  if (DEBUG) console.log("roleRevokedEvents:", roleRevokedEvents)
 
   // If you want to bring in the mainnet DAI contract it would look like:
   const mainnetDAIContract = useExternalContractLoader(mainnetProvider, DAI_ADDRESS, DAI_ABI)
@@ -280,6 +287,7 @@ function App(props) {
               price={price}
               mainnetProvider={mainnetProvider}
               blockExplorer={blockExplorer}
+              role={userRole}
             />
           </Route>
           { /* uncomment for a second contract:

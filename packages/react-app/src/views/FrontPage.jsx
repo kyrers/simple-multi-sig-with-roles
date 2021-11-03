@@ -4,7 +4,7 @@ import { SyncOutlined } from "@ant-design/icons";
 import { parseEther, formatEther } from "@ethersproject/units";
 import { ethers } from "ethers";
 import QR from "qrcode.react";
-import { useContractReader, useEventListener, useLocalStorage, useLookupAddress } from "../hooks";
+import { useUserProvider, useEventListener, useLocalStorage, useLookupAddress } from "../hooks";
 import { Address, AddressInput, Balance, Blockie, TransactionListItem } from "../components";
 
 const axios = require("axios");
@@ -17,14 +17,15 @@ export default function FrontPage({
   price,
   mainnetProvider,
   blockExplorer,
+  role
 }) {
   const [methodName, setMethodName] = useLocalStorage("addSigner");
   return (
     <div style={{ padding: 32, maxWidth: 750, margin: "auto" }}>
       <div style={{ paddingBottom: 32 }}>
-        <div key={`role`} style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "left" }}>
+        <div key={`role`} style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "left", fontSize: 24 }}>
           <b>Your Role :&nbsp;</b>
-          {/*readContracts[contractName].getRole*/}
+          {role}
         </div>
 
         <div>
