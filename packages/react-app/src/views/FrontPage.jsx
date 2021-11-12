@@ -1,11 +1,8 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { Button, List, Modal, Input, Card, DatePicker, Slider, Switch, Progress, Spin } from "antd";
-import { SyncOutlined } from "@ant-design/icons";
-import { parseEther, formatEther } from "@ethersproject/units";
-import { ethers } from "ethers";
+import React from "react";
+import { List } from "antd";
 import QR from "qrcode.react";
-import { useUserProvider, useEventListener, useLocalStorage, useLookupAddress } from "../hooks";
-import { Address, AddressInput, Balance, Blockie, TransactionListItem } from "../components";
+import { useLocalStorage } from "../hooks";
+import { Address, Balance, TransactionListItem } from "../components";
 
 const axios = require("axios");
 
@@ -39,11 +36,10 @@ export default function FrontPage({
         <div>
           <QR
             value={readContracts ? readContracts[contractName].address : ""}
-            size="90"
+            size={90}
             level="H"
             includeMargin
             renderAs="svg"
-            imageSettings={{ excavate: false }}
           />
         </div>
         <div>

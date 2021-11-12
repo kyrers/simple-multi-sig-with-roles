@@ -1,11 +1,8 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React from "react";
 import { useHistory } from "react-router-dom";
-import { Select, Button, List, Divider, Input, Card, DatePicker, Slider, Switch, Progress, Spin } from "antd";
-import { SyncOutlined } from '@ant-design/icons';
-import { Address, AddressInput, Balance, Blockie } from "../components";
-import { parseEther, formatEther } from "@ethersproject/units";
-import { ethers } from "ethers";
-import { useContractReader, useEventListener, useLocalStorage } from "../hooks";
+import { Select, Button, List, Input, Spin } from "antd";
+import { Address, AddressInput } from "../components";
+import { useLocalStorage } from "../hooks";
 const axios = require('axios');
 const { Option } = Select;
 
@@ -81,14 +78,12 @@ export default function Owners({ contractName, ownerEvents, signaturesRequired, 
         </div>
         <div style={{ margin: 8, padding: 8 }}>
           <Button onClick={() => {
-            console.log("METHOD", setMethodName)
             let calldata = "";
             if (methodName == "addSigner") {
               calldata = readContracts[contractName].interface.encodeFunctionData(methodName, [owner, newRole, newSignaturesRequired]);
             } else {
               calldata = readContracts[contractName].interface.encodeFunctionData(methodName, [owner, newSignaturesRequired]);
             }
-            console.log("calldata", calldata)
             setData(calldata)
             setAmount("0")
             setTo(readContracts[contractName].address)

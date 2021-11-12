@@ -5,7 +5,7 @@ import { Address, Balance, Blockie, TransactionDetailsModal } from "../component
 import { EllipsisOutlined } from "@ant-design/icons";
 import { parseEther, formatEther } from "@ethersproject/units";
 
-const TransactionListItem = function ({item, mainnetProvider, blockExplorer, price, readContracts, contractName, children}) {
+const TransactionListItem = function ({ item, mainnetProvider, blockExplorer, price, readContracts, contractName, children }) {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [txnInfo, setTxnInfo] = useState(null);
 
@@ -17,12 +17,10 @@ const TransactionListItem = function ({item, mainnetProvider, blockExplorer, pri
     setIsModalVisible(false);
   };
 
-
-  console.log("🔥🔥🔥🔥", item)
   let txnData;
   try {
     txnData = readContracts[contractName].interface.parseTransaction(item);
-  } catch (error){
+  } catch (error) {
     console.log("ERROR", error)
   }
   return <>
@@ -55,7 +53,7 @@ const TransactionListItem = function ({item, mainnetProvider, blockExplorer, pri
           {txnData.args[0]}
         </p>
       </div>
-      {<b style={{ padding: 16 }}>#{typeof(item.nonce)=== "number" ? item.nonce : item.nonce.toNumber()}</b>}
+      {<b style={{ padding: 16 }}>#{typeof (item.nonce) === "number" ? item.nonce : item.nonce.toNumber()}</b>}
       <span>
         <Blockie size={4} scale={8} address={item.hash} /> {item.hash.substr(0, 6)}
       </span>
@@ -71,8 +69,8 @@ const TransactionListItem = function ({item, mainnetProvider, blockExplorer, pri
       >
         <EllipsisOutlined />
       </Button>
-      
+
     </List.Item>}
-    </>
+  </>
 };
 export default TransactionListItem;

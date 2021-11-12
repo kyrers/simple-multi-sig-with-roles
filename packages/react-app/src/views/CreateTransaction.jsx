@@ -1,10 +1,9 @@
-import React, { useCallback, useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useHistory } from "react-router-dom";
-import { Button, Select, List, Divider, Input, Card, DatePicker, Slider, Switch, Progress, Spin } from "antd";
-import { SyncOutlined } from "@ant-design/icons";
-import { parseEther, formatEther } from "@ethersproject/units";
+import { Button, Select, Input, Spin } from "antd";
+import { parseEther } from "@ethersproject/units";
 import { Address, AddressInput, Balance, EtherInput, Blockie } from "../components";
-import { useContractReader, useEventListener } from "../hooks";
+import { useContractReader } from "../hooks";
 const { Option } = Select;
 
 const axios = require("axios");
@@ -28,11 +27,6 @@ export default function CreateTransaction({
   // keep track of a variable from the contract in the local React state:
   const nonce = useContractReader(readContracts, contractName, "nonce");
   const calldataInputRef = useRef("0x");
-
-  console.log("🤗 nonce:", nonce);
-
-  console.log("price", price);
-
   const [customNonce, setCustomNonce] = useState();
   const [to, setTo] = useLocalStorage("to");
   const [amount, setAmount] = useLocalStorage("amount", "0");
@@ -51,16 +45,12 @@ export default function CreateTransaction({
   let decodedDataObject = "";
   useEffect(() => {
     const inputTimer = setTimeout(async () => {
-      console.log("EFFECT RUNNING");
       try {
-        if (methodName == "transferFunds") {
-          console.log("Send transaction selected")
-          console.log("🔥🔥🔥🔥🔥🔥", amount)
+        if (methodName === "transferFunds") {
           const calldata = readContracts[contractName].interface.encodeFunctionData("transferFunds", [to, parseEther("" + parseFloat(amount).toFixed(12))])
           setData(calldata);
         }
         decodedDataObject = readContracts ? await readContracts[contractName].interface.parseTransaction({ data }) : "";
-        console.log("decodedDataObject", decodedDataObject);
         setCreateTxnEnabled(true);
         if (decodedDataObject.signature === "addSigner(address,string,uint256)") {
           setMethodName("addSigner")
@@ -117,8 +107,6 @@ export default function CreateTransaction({
         setResult();
 
       } catch (error) {
-
-        console.log("mistake: ", error);
         if (data !== "0x") setResult("ERROR: Invalid calldata");
         setCreateTxnEnabled(false);
       }
@@ -201,9 +189,7 @@ export default function CreateTransaction({
               //   setResult("ERROR, Call Data Invalid");
               //   return;
               // }
-              console.log("customNonce", customNonce);
               const nonce = customNonce || (await readContracts[contractName].nonce());
-              console.log("nonce", nonce);
 
               const newHash = await readContracts[contractName].getTransactionHash(
                 nonce,
@@ -211,16 +197,10 @@ export default function CreateTransaction({
                 parseEther("" + parseFloat(amount).toFixed(12)),
                 data,
               );
-              console.log("newHash", newHash);
 
               const signature = await userProvider.send("personal_sign", [newHash, address]);
-              console.log("signature", signature);
-
               const recover = await readContracts[contractName].recover(newHash, signature);
-              console.log("recover", recover);
-
               const isOwner = await readContracts[contractName].isOwner(recover);
-              console.log("isOwner", isOwner);
 
               if (isOwner) {
                 const res = await axios.post(poolServerUrl, {
@@ -235,9 +215,6 @@ export default function CreateTransaction({
                   signers: [recover],
                 });
                 // IF SIG IS VALUE ETC END TO SERVER AND SERVER VERIFIES SIG IS RIGHT AND IS SIGNER BEFORE ADDING TY
-
-                console.log("RESULT", res.data);
-
                 setTimeout(() => {
                   history.push("/pool");
                 }, 2777);
@@ -247,7 +224,6 @@ export default function CreateTransaction({
                 setAmount("0");
                 setData("0x");
               } else {
-                console.log("ERROR, NOT OWNER.");
                 setResult("ERROR, NOT OWNER.");
               }
             }}

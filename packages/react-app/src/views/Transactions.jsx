@@ -1,14 +1,11 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { Button, List, Divider, Input, Card, DatePicker, Slider, Switch, Progress, Spin } from "antd";
-import { SyncOutlined } from "@ant-design/icons";
-import { parseEther, formatEther } from "@ethersproject/units";
+import React, { useState } from "react";
+import { Button, List, Spin } from "antd";
+import { parseEther } from "@ethersproject/units";
 import { ethers } from "ethers";
-import { Address, AddressInput, Balance, Blockie, TransactionListItem } from "../components";
-import { useContractReader, useEventListener, usePoller } from "../hooks";
+import { TransactionListItem } from "../components";
+import { usePoller } from "../hooks";
 
 const axios = require("axios");
-
-const DEBUG = false;
 
 export default function Transactions({
   poolServerUrl,
@@ -19,7 +16,6 @@ export default function Transactions({
   userProvider,
   mainnetProvider,
   localProvider,
-  yourLocalBalance,
   price,
   tx,
   readContracts,
@@ -29,7 +25,6 @@ export default function Transactions({
   const [transactions, setTransactions] = useState();
   usePoller(() => {
     const getTransactions = async () => {
-      if (true) console.log("🛰 Requesting Transaction List");
       const res = await axios.get(
         poolServerUrl + readContracts[contractName].address + "_" + localProvider._network.chainId,
       );
@@ -53,17 +48,13 @@ export default function Transactions({
         }
       }
       setTransactions(newTransactions);
-      console.log("Loaded",newTransactions.length)
     };
     if (readContracts) getTransactions();
   }, 3777);
 
   const getSortedSigList = async (allSigs, newHash) => {
-    console.log("allSigs", allSigs);
-
     const sigList = [];
     for (const s in allSigs) {
-      console.log("SIG", allSigs[s]);
       const recover = await readContracts[contractName].recover(newHash, allSigs[s]);
       sigList.push({ signature: allSigs[s], signer: recover });
     }
@@ -71,8 +62,6 @@ export default function Transactions({
     sigList.sort((a, b) => {
       return ethers.BigNumber.from(a.signer).sub(ethers.BigNumber.from(b.signer));
     });
-
-    console.log("SORTED SIG LIST:", sigList);
 
     const finalSigList = [];
     const finalSigners = [];
@@ -84,16 +73,12 @@ export default function Transactions({
       }
       used[sigList[s].signature] = true;
     }
-
-    console.log("FINAL SIG LIST:", finalSigList);
     return [finalSigList, finalSigners];
   };
 
   if (!signaturesRequired) {
     return <Spin />;
   }
-
-  console.log("transactions",transactions)
 
   return (
     <div style={{ maxWidth: 750, margin: "auto", marginTop: 32, marginBottom: 32 }}>
@@ -105,8 +90,6 @@ export default function Transactions({
         bordered
         dataSource={transactions}
         renderItem={item => {
-          console.log("ITE88888M", item);
-
           const hasSigned = item.signers.indexOf(address) >= 0;
           const hasEnoughSignatures = item.signatures.length <= signaturesRequired.toNumber();
 
@@ -117,30 +100,22 @@ export default function Transactions({
               </span>
               <Button
                 onClick={async () => {
-                  console.log("item.signatures", item.signatures);
-
                   const newHash = await readContracts[contractName].getTransactionHash(
                     item.nonce,
                     item.to,
                     parseEther("" + parseFloat(item.amount).toFixed(12)),
                     item.data,
                   );
-                  console.log("newHash", newHash);
-
                   const signature = await userProvider.send("personal_sign", [newHash, address]);
-                  console.log("signature", signature);
-
                   const recover = await readContracts[contractName].recover(newHash, signature);
-                  console.log("recover--->", recover);
-
                   const isOwner = await readContracts[contractName].isOwner(recover);
-                  console.log("isOwner", isOwner);
 
                   if (isOwner) {
                     const [finalSigList, finalSigners] = await getSortedSigList(
                       [...item.signatures, signature],
                       newHash,
                     );
+
                     const res = await axios.post(poolServerUrl, {
                       ...item,
                       signatures: finalSigList,
@@ -157,7 +132,7 @@ export default function Transactions({
               <Button
 
                 key={item.hash}
-                
+
                 onClick={async () => {
                   const newHash = await readContracts[contractName].getTransactionHash(
                     item.nonce,
@@ -165,9 +140,6 @@ export default function Transactions({
                     parseEther("" + parseFloat(item.amount).toFixed(12)),
                     item.data,
                   );
-                  console.log("newHash", newHash);
-
-                  console.log("item.signatures", item.signatures);
 
                   const [finalSigList, finalSigners] = await getSortedSigList(item.signatures, newHash);
 
@@ -184,7 +156,7 @@ export default function Transactions({
               >
                 Exec
               </Button>
-          </TransactionListItem>
+            </TransactionListItem>
           );
         }}
       />

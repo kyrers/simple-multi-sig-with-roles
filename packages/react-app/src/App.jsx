@@ -48,7 +48,6 @@ const DEBUG = true
 
 
 // 🛰 providers
-if (DEBUG) console.log("📡 Connecting to Mainnet Ethereum");
 // const mainnetProvider = getDefaultProvider("mainnet", { infura: INFURA_ID, etherscan: ETHERSCAN_KEY, quorum: 1 });
 // const mainnetProvider = new InfuraProvider("mainnet",INFURA_ID);
 //
@@ -61,7 +60,6 @@ const mainnetInfura = new JsonRpcProvider("https://mainnet.infura.io/v3/" + INFU
 const localProviderUrl = targetNetwork.rpcUrl;
 // as you deploy to other networks you can set REACT_APP_PROVIDER=https://dai.poa.network in packages/react-app/.env
 const localProviderUrlFromEnv = process.env.REACT_APP_PROVIDER ? process.env.REACT_APP_PROVIDER : localProviderUrl;
-if (DEBUG) console.log("🏠 Connecting to provider:", localProviderUrlFromEnv);
 const localProvider = new StaticJsonRpcProvider(localProviderUrlFromEnv);
 
 
@@ -113,11 +111,6 @@ function App(props) {
 
   //📟 Listen for broadcast events
   const executeTransactionEvents = useEventListener(readContracts, contractName, "ExecuteTransaction", localProvider, 1);
-  if (DEBUG) console.log("📟 executeTransactionEvents:", executeTransactionEvents)
-
-  // keep track of a variable from the contract in the local React state:
-  const isOwner = useContractReader(readContracts, contractName, "isOwner", [address])
-  if (DEBUG) console.log("🤗 isOwner (" + address + "):", isOwner)
 
   //Get user role
   const userRole = useContractReader(readContracts, contractName, "userRole", [address])
@@ -125,11 +118,9 @@ function App(props) {
 
   // keep track of a variable from the contract in the local React state:
   const nonce = useContractReader(readContracts, contractName, "nonce")
-  if (DEBUG) console.log("# nonce:", nonce)
 
   //📟 Listen for broadcast events
   const ownerEvents = useEventListener(readContracts, contractName, "Owner", localProvider, 1);
-  if (DEBUG) console.log("📟 ownerEvents:", ownerEvents)
 
   //Listen for role related events
   const roleGrantedEvents = useEventListener(readContracts, contractName, "RoleGranted", localProvider, 1);
@@ -142,9 +133,9 @@ function App(props) {
   const mainnetDAIContract = useExternalContractLoader(mainnetProvider, DAI_ADDRESS, DAI_ABI)
 
   // If you want to call a function on a new block
-  useOnBlock(mainnetProvider, () => {
+  /*useOnBlock(mainnetProvider, () => {
     console.log(`⛓ A new mainnet block is here: ${mainnetProvider._lastBlockNumber}`)
-  })
+  })*/
 
   // Then read your DAI balance like:
   const myMainnetDAIBalance = useContractReader({ DAI: mainnetDAIContract }, "DAI", "balanceOf", ["0x34aA3F359A9D614239015126635CE7732c18fDF3"])
@@ -163,7 +154,7 @@ function App(props) {
   //
   // 🧫 DEBUG 👨🏻‍🔬
   //
-  useEffect(() => {
+  /*useEffect(() => {
     if (DEBUG && mainnetProvider && address && selectedChainId && yourLocalBalance && yourMainnetBalance && readContracts && writeContracts && mainnetDAIContract) {
       console.log("_____________________________________ 🏗 scaffold-eth _____________________________________")
       console.log("🌎 mainnetProvider", mainnetProvider)
@@ -176,7 +167,7 @@ function App(props) {
       console.log("🌍 DAI contract on mainnet:", mainnetDAIContract)
       console.log("🔐 writeContracts", writeContracts)
     }
-  }, [mainnetProvider, address, selectedChainId, yourLocalBalance, yourMainnetBalance, readContracts, writeContracts, mainnetDAIContract])
+  }, [mainnetProvider, address, selectedChainId, yourLocalBalance, yourMainnetBalance, readContracts, writeContracts, mainnetDAIContract])*/
 
 
   let networkDisplay = ""
@@ -205,14 +196,13 @@ function App(props) {
 
 
   const signaturesRequired = useContractReader(readContracts, contractName, "signaturesRequired")
-  if (DEBUG) console.log("✳️ signaturesRequired:", signaturesRequired)
 
   //event OpenStream( address indexed to, uint256 amount, uint256 frequency );
-  const openStreamEvents = useEventListener(readContracts, contractName, "OpenStream", localProvider, 1);
+  /*const openStreamEvents = useEventListener(readContracts, contractName, "OpenStream", localProvider, 1);
   if (DEBUG) console.log("📟 openStreamEvents:", openStreamEvents)
 
   const withdrawStreamEvents = useEventListener(readContracts, contractName, "Withdraw", localProvider, 1);
-  if (DEBUG) console.log("📟 withdrawStreamEvents:", withdrawStreamEvents)
+  if (DEBUG) console.log("📟 withdrawStreamEvents:", withdrawStreamEvents)*/
 
 
   const loadWeb3Modal = useCallback(async () => {
