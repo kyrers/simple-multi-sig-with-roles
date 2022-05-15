@@ -14,11 +14,15 @@ The code is commented wherever relevant changes were written, but the intended m
 
 **How to run:**
 - After you download, you might need to run *yarn install* in the project folder;
+- Before deployment make sure you edit `deploy.js` and add yourself as an owner;
 - After that open 4 consoles in the project folder and run:
   1. *yarn start* 
   2. *yarn chain* 
   3. *yarn backend* 
   4. *yarn deploy* 
+     - Don't forget to add yourself as the owner in the `deploy.js` file;
+     - It's imperative that you set your `INFURA_ID` in the `constants.js` file;
+     - If you get an error saying that the contracts couldn't be loaded, check that the `contract.js` file is exporting "MetaMultiSigWallet";
 
 
 **DISCLAIMER:**
