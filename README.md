@@ -3,6 +3,7 @@
 This branch is based on https://github.com/scaffold-eth/scaffold-eth/tree/meta-multi-sig.<br/>
 You should check it out first. When you do, you'll see that there's a proposed challenge: Add roles to the multi-sig-wallet. This is a possible solution.
 
+## LIVE DEMO: [DEMO](https://knowing-peace.surge.sh/)
 
 **GOALS**
 

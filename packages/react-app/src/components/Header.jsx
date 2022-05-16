@@ -8,7 +8,7 @@ export default function Header() {
     <a href="https://github.com/kyrers/simple-multi-sig-with-roles" target="_blank" rel="noopener noreferrer">
       <PageHeader
         title="SIMPLE-MULTI-SIG-WITH-ROLES"
-        subTitle="based on 🏗 scaffold-eth meta-multi-sig branch"
+        subTitle="by kyrers based on 🏗 scaffold-eth meta-multi-sig branch"
         style={{ cursor: "pointer" }}
       />
     </a>
